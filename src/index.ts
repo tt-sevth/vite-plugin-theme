@@ -1,14 +1,15 @@
-import { Plugin, ResolvedConfig } from 'vite';
+import {PluginOption, ResolvedConfig} from 'vite';
 import path from 'path';
 import fs from 'fs-extra';
-import { debug as Debug } from 'debug';
-import { extractVariable, minifyCSS } from './utils';
+import {debug as Debug} from 'debug';
+import {createFileHash, extractVariable, formatCss, minifyCSS} from './utils';
+import colors from "picocolors";
+import {CLIENT_PUBLIC_ABSOLUTE_PATH, cssLangRE, cssVariableString, VITE_CLIENT_ENTRY} from './constants';
+import {injectClientPlugin} from './injectClientPlugin';
 
 export * from '../client/colorUtils';
 
 export { antdDarkThemePlugin } from './antdDarkThemePlugin';
-
-import { VITE_CLIENT_ENTRY, cssLangRE, cssVariableString, CLIENT_PUBLIC_PATH } from './constants';
 
 export type ResolveSelector = (selector: string) => string;
 
@@ -24,21 +25,17 @@ export interface ViteThemeOptions {
   verbose?: boolean;
 }
 
-import { createFileHash, formatCss } from './utils';
-import chalk from 'chalk';
-import { injectClientPlugin } from './injectClientPlugin';
-
 const debug = Debug('vite-plugin-theme');
 
-export function viteThemePlugin(opt: ViteThemeOptions): Plugin[] {
+export function viteThemePlugin(opt: ViteThemeOptions): PluginOption {
   let isServer = false;
   let config: ResolvedConfig;
   let clientPath = '';
   const styleMap = new Map<string, string>();
 
-  let extCssSet = new Set<string>();
+  const extCssSet = new Set<string>();
 
-  const emptyPlugin: Plugin = {
+  const emptyPlugin: PluginOption = {
     name: 'vite:theme',
   };
 
@@ -85,7 +82,7 @@ export function viteThemePlugin(opt: ViteThemeOptions): Plugin[] {
       configResolved(resolvedConfig) {
         config = resolvedConfig;
         isServer = resolvedConfig.command === 'serve';
-        clientPath = JSON.stringify(path.posix.join(config.base, CLIENT_PUBLIC_PATH));
+        clientPath = JSON.stringify(CLIENT_PUBLIC_ABSOLUTE_PATH);
         needSourcemap = !!resolvedConfig.build.sourcemap;
         debug('plugin config:', resolvedConfig);
       },
@@ -160,14 +157,14 @@ export function viteThemePlugin(opt: ViteThemeOptions): Plugin[] {
             build: { outDir, assetsDir },
           } = config;
           console.log(
-            chalk.cyan('\n✨ [vite-plugin-theme]') + ` - extract css code file is successfully:`
+            colors.cyan('\n✨ [vite-plugin-theme]') + ` - extract css code file is successfully:`
           );
           try {
             const { size } = fs.statSync(path.join(outDir, assetsDir, cssOutputName));
             console.log(
-              chalk.dim(outDir + '/') +
-                chalk.magentaBright(`${assetsDir}/${cssOutputName}`) +
-                `\t\t${chalk.dim((size / 1024).toFixed(2) + 'kb')}` +
+              colors.dim(outDir + '/') +
+              colors.magenta(`${assetsDir}/${cssOutputName}`) +
+                `\t\t${colors.dim((size / 1024).toFixed(2) + 'kb')}` +
                 '\n'
             );
           } catch (error) {}

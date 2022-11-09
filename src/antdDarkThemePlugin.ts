@@ -1,12 +1,12 @@
-import type { Plugin, ResolvedConfig } from 'vite';
+import type { PluginOption, ResolvedConfig } from 'vite';
 import path from 'path';
 import fs from 'fs-extra';
 import less from 'less';
 import { createFileHash, minifyCSS, extractVariable } from './utils';
-import chalk from 'chalk';
 import { colorRE, linkID } from './constants';
 import { injectClientPlugin } from './injectClientPlugin';
 import { lessPlugin } from './preprocessor/less';
+import colors from "picocolors";
 
 export interface AntdDarkThemeOption {
   darkModifyVars?: any;
@@ -19,7 +19,7 @@ export interface AntdDarkThemeOption {
   loadMethod?: 'link' | 'ajax';
 }
 
-export function antdDarkThemePlugin(options: AntdDarkThemeOption): Plugin[] {
+export function antdDarkThemePlugin(options: AntdDarkThemeOption): PluginOption {
   const {
     darkModifyVars,
     verbose = true,
@@ -39,7 +39,7 @@ export function antdDarkThemePlugin(options: AntdDarkThemeOption): Plugin[] {
   const codeCache = new Map<string, { code: string; css: string }>();
 
   const cssOutputName = `${fileName}.${createFileHash()}.css`;
-  
+
   const hrefProtocals = [ 'http://' ];
 
   const getCss = (css: string) => {
@@ -205,15 +205,15 @@ export function antdDarkThemePlugin(options: AntdDarkThemeOption): Plugin[] {
             build: { outDir, assetsDir },
           } = config;
           console.log(
-            chalk.cyan('\n✨ [vite-plugin-theme:antd-dark]') +
+            colors.cyan('\n✨ [vite-plugin-theme:antd-dark]') +
               ` - extract antd dark css code file is successfully:`
           );
           try {
             const { size } = fs.statSync(path.join(outDir, assetsDir, cssOutputName));
             console.log(
-              chalk.dim(outDir + '/') +
-                chalk.magentaBright(`${assetsDir}/${cssOutputName}`) +
-                `\t\t${chalk.dim((size / 1024).toFixed(2) + 'kb')}` +
+              colors.dim(outDir + '/') +
+              colors.magenta(`${assetsDir}/${cssOutputName}`) +
+                `\t\t${colors.dim((size / 1024).toFixed(2) + 'kb')}` +
                 '\n'
             );
           } catch (error) {}

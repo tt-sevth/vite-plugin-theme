@@ -1,9 +1,9 @@
 {
   "name": "vite-plugin-theme",
-  "version": "0.8.3",
+  "version": "0.8.7",
   "description": "Vite plugin for dynamically changing the theme color of the interface",
   "main": "dist/index.js",
-  "module": "dist/index.js",
+  "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "files": [
     "dist",
@@ -45,12 +45,11 @@
   },
   "homepage": "https://github.com/vbenjs/vite-plugin-theme/tree/master/#readme",
   "peerDependencies": {
-    "vite": ">=2.0.0-beta.49"
+    "vite": ">=3.2.0"
   },
   "devDependencies": {
     "@commitlint/cli": "^12.1.4",
     "@commitlint/config-conventional": "^12.1.4",
-    "@types/chalk": "^2.2.0",
     "@types/debug": "^4.1.5",
     "@types/fs-extra": "^9.0.11",
     "@types/jest": "^26.0.23",
@@ -75,14 +74,13 @@
     "rimraf": "^3.0.2",
     "shipjs": "^0.23.2",
     "ts-jest": "^26.5.6",
-    "tsup": "^4.11.1",
+    "tsup": "^6.4.0",
     "typescript": "^4.2.4",
-    "vite": "^2.3.4"
+    "vite": "^3.2.0"
   },
   "dependencies": {
     "@types/node": "^14.17.1",
     "@types/tinycolor2": "^1.4.2",
-    "chalk": "^4.1.1",
     "clean-css": "^5.1.2",
     "debug": "^4.3.2",
     "esbuild": "^0.11.23",
