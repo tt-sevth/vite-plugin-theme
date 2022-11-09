@@ -72,6 +72,8 @@ export function viteThemePlugin(opt: ViteThemeOptions): PluginOption {
   return [
     injectClientPlugin(),
     {
+      enforce: "post",
+      apply: "serve",
       ...emptyPlugin,
       configResolved(resolvedConfig) {
         createContext({
@@ -93,9 +95,7 @@ export function viteThemePlugin(opt: ViteThemeOptions): PluginOption {
           };
         };
 
-        const clientCode = context.devEnvironment
-          ? await getClientStyleString(code)
-          : code.replace('export default', '').replace('"', '');
+        const clientCode = await getClientStyleString(code)
 
         // Used to extract the relevant color configuration in css, you can pass in the function to override
         const extractCssCodeTemplate =
@@ -110,22 +110,52 @@ export function viteThemePlugin(opt: ViteThemeOptions): PluginOption {
         }
 
         // dev-server
-        if (context.devEnvironment) {
-          const retCode = [
-            `import { addCssToQueue } from ${context.injectClientPath}`,
-            `const themeCssId = ${JSON.stringify(id)}`,
-            `const themeCssStr = ${JSON.stringify(formatCss(extractCssCodeTemplate))}`,
-            `addCssToQueue(themeCssId, themeCssStr)`,
-            code,
-          ];
+        const retCode = [
+          `import { addCssToQueue } from ${context.injectClientPath}`,
+          `const themeCssId = ${JSON.stringify(id)}`,
+          `const themeCssStr = ${JSON.stringify(formatCss(extractCssCodeTemplate))}`,
+          `addCssToQueue(themeCssId, themeCssStr)`,
+          code,
+        ];
 
-          return getResult(retCode.join('\n'));
-        } else {
-          if (!styleMap.has(id)) {
-            extCssSet.add(extractCssCodeTemplate);
-          }
-          styleMap.set(id, extractCssCodeTemplate);
+        return getResult(retCode.join('\n'));
+      },
+    },
+    {
+      apply: "build",
+      ...emptyPlugin,
+      configResolved(resolvedConfig) {
+        createContext({
+          viteOptions: resolvedConfig,
+          devEnvironment: resolvedConfig.command === 'serve',
+          needSourceMap: !!resolvedConfig.build.sourcemap
+        });
+        debug('plugin config:', resolvedConfig);
+      },
+
+      async transform(code, id) {
+        if (!cssLangRE.test(id)) {
+          return null;
         }
+
+        const clientCode = code.replace('export default', '').replace('"', '');
+
+        // Used to extract the relevant color configuration in css, you can pass in the function to override
+        const extractCssCodeTemplate =
+          typeof customerExtractVariable === 'function'
+            ? customerExtractVariable(clientCode)
+            : extractVariable(clientCode, colorVariables, resolveSelectorFn);
+
+        debug('extractCssCodeTemplate:', id, extractCssCodeTemplate);
+
+        if (!extractCssCodeTemplate) {
+          return null;
+        }
+
+        if (!styleMap.has(id)) {
+          extCssSet.add(extractCssCodeTemplate);
+        }
+        styleMap.set(id, extractCssCodeTemplate);
 
         return null;
       },

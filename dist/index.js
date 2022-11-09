@@ -22729,6 +22729,8 @@ function viteThemePlugin(opt) {
   return [
     injectClientPlugin(),
     {
+      enforce: "post",
+      apply: "serve",
       ...emptyPlugin,
       configResolved(resolvedConfig) {
         createContext({
@@ -22748,27 +22750,47 @@ function viteThemePlugin(opt) {
             code: content
           };
         };
-        const clientCode = context2.devEnvironment ? await getClientStyleString(code) : code.replace("export default", "").replace('"', "");
+        const clientCode = await getClientStyleString(code);
         const extractCssCodeTemplate = typeof customerExtractVariable === "function" ? customerExtractVariable(clientCode) : extractVariable(clientCode, colorVariables, resolveSelectorFn);
         debug2("extractCssCodeTemplate:", id, extractCssCodeTemplate);
         if (!extractCssCodeTemplate) {
           return null;
         }
-        if (context2.devEnvironment) {
-          const retCode = [
-            `import { addCssToQueue } from ${context2.injectClientPath}`,
-            `const themeCssId = ${JSON.stringify(id)}`,
-            `const themeCssStr = ${JSON.stringify(formatCss(extractCssCodeTemplate))}`,
-            `addCssToQueue(themeCssId, themeCssStr)`,
-            code
-          ];
-          return getResult(retCode.join("\n"));
-        } else {
-          if (!styleMap.has(id)) {
-            extCssSet.add(extractCssCodeTemplate);
-          }
-          styleMap.set(id, extractCssCodeTemplate);
+        const retCode = [
+          `import { addCssToQueue } from ${context2.injectClientPath}`,
+          `const themeCssId = ${JSON.stringify(id)}`,
+          `const themeCssStr = ${JSON.stringify(formatCss(extractCssCodeTemplate))}`,
+          `addCssToQueue(themeCssId, themeCssStr)`,
+          code
+        ];
+        return getResult(retCode.join("\n"));
+      }
+    },
+    {
+      apply: "build",
+      ...emptyPlugin,
+      configResolved(resolvedConfig) {
+        createContext({
+          viteOptions: resolvedConfig,
+          devEnvironment: resolvedConfig.command === "serve",
+          needSourceMap: !!resolvedConfig.build.sourcemap
+        });
+        debug2("plugin config:", resolvedConfig);
+      },
+      async transform(code, id) {
+        if (!cssLangRE.test(id)) {
+          return null;
         }
+        const clientCode = code.replace("export default", "").replace('"', "");
+        const extractCssCodeTemplate = typeof customerExtractVariable === "function" ? customerExtractVariable(clientCode) : extractVariable(clientCode, colorVariables, resolveSelectorFn);
+        debug2("extractCssCodeTemplate:", id, extractCssCodeTemplate);
+        if (!extractCssCodeTemplate) {
+          return null;
+        }
+        if (!styleMap.has(id)) {
+          extCssSet.add(extractCssCodeTemplate);
+        }
+        styleMap.set(id, extractCssCodeTemplate);
         return null;
       },
       async writeBundle() {
