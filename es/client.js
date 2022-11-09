@@ -56,21 +56,15 @@ export async function replaceStyleVariables({ colorVariables, customCssHandler, 
         renderTheme();
     }
     else {
-        try {
-            const cssText = await fetchCss(colorPluginOutputFileName);
-            const styleDom = getStyleDom(styleTagId);
-            const processCss = await replaceCssColors(cssText, colorVariables, customCssHandler);
-            appendCssToDom(styleDom, processCss, injectTo);
-        }
-        catch (error) {
-            throw new Error(error);
-        }
+        const cssText = await fetchCss(colorPluginOutputFileName);
+        const styleDom = getStyleDom(styleTagId);
+        const processCss = await replaceCssColors(cssText, colorVariables, customCssHandler);
+        appendCssToDom(styleDom, processCss, injectTo);
     }
 }
 export async function loadDarkThemeCss() {
-    const extractCss = __ANTD_DARK_PLUGIN_EXTRACT_CSS__;
     const isLoadLink = __ANTD_DARK_PLUGIN_LOAD_LINK__;
-    if (darkCssIsReady || !extractCss) {
+    if (darkCssIsReady) {
         return;
     }
     if (isLoadLink) {

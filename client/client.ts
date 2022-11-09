@@ -31,7 +31,6 @@ declare global {
 declare const __COLOR_PLUGIN_OPTIONS__: Options;
 declare const __COLOR_PLUGIN_OUTPUT_FILE_NAME__: string;
 declare const __ANTD_DARK_PLUGIN_OUTPUT_FILE_NAME__: string;
-declare const __ANTD_DARK_PLUGIN_EXTRACT_CSS__: boolean;
 declare const __ANTD_DARK_PLUGIN_LOAD_LINK__: boolean;
 declare const __PROD__: boolean;
 
@@ -102,21 +101,16 @@ export async function replaceStyleVariables({
     }
     renderTheme();
   } else {
-    try {
-      const cssText = await fetchCss(colorPluginOutputFileName);
-      const styleDom = getStyleDom(styleTagId);
-      const processCss = await replaceCssColors(cssText, colorVariables, customCssHandler);
-      appendCssToDom(styleDom, processCss, injectTo);
-    } catch (error) {
-      throw new Error(error);
-    }
+    const cssText = await fetchCss(colorPluginOutputFileName);
+    const styleDom = getStyleDom(styleTagId);
+    const processCss = await replaceCssColors(cssText, colorVariables, customCssHandler);
+    appendCssToDom(styleDom, processCss, injectTo);
   }
 }
 
 export async function loadDarkThemeCss() {
-  const extractCss = __ANTD_DARK_PLUGIN_EXTRACT_CSS__;
   const isLoadLink = __ANTD_DARK_PLUGIN_LOAD_LINK__;
-  if (darkCssIsReady || !extractCss) {
+  if (darkCssIsReady) {
     return;
   }
   if (isLoadLink) {

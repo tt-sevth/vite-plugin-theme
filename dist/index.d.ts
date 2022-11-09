@@ -14,11 +14,10 @@ interface AntdDarkThemeOption {
     verbose?: boolean;
     selector?: string;
     filter?: (id: string) => boolean;
-    extractCss?: boolean;
     preloadFiles?: string[];
     loadMethod?: 'link' | 'ajax';
 }
-declare function antdDarkThemePlugin(options: AntdDarkThemeOption): PluginOption;
+declare function antdDarkThemePlugin(opt: AntdDarkThemeOption): PluginOption;
 
 declare type ResolveSelector = (selector: string) => string;
 declare type InjectTo = 'head' | 'body' | 'body-prepend';

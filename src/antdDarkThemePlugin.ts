@@ -1,12 +1,13 @@
-import type { PluginOption, ResolvedConfig } from 'vite';
+import type {PluginOption} from 'vite';
 import path from 'path';
 import fs from 'fs-extra';
 import less from 'less';
-import { createFileHash, minifyCSS, extractVariable } from './utils';
-import { colorRE, linkID } from './constants';
-import { injectClientPlugin } from './injectClientPlugin';
-import { lessPlugin } from './preprocessor/less';
+import {createFileHash, extractVariable, minifyCSS} from './utils';
+import {colorRE, linkID} from './constants';
+import {injectClientPlugin} from './injectClientPlugin';
+import {lessPlugin} from './preprocessor/less';
 import colors from "picocolors";
+import {createContext} from "./context";
 
 export interface AntdDarkThemeOption {
   darkModifyVars?: any;
@@ -14,25 +15,28 @@ export interface AntdDarkThemeOption {
   verbose?: boolean;
   selector?: string;
   filter?: (id: string) => boolean;
-  extractCss?: boolean;
   preloadFiles?: string[];
   loadMethod?: 'link' | 'ajax';
 }
 
-export function antdDarkThemePlugin(options: AntdDarkThemeOption): PluginOption {
+export function antdDarkThemePlugin(opt: AntdDarkThemeOption): PluginOption {
+  const options = Object.assign({
+    verbose: true,
+    fileName: 'app-antd-dark-theme-style',
+    preloadFiles: [],
+    loadMethod: 'link',
+  }, opt);
+
   const {
     darkModifyVars,
-    verbose = true,
-    fileName = 'app-antd-dark-theme-style',
+    verbose,
+    fileName,
     selector,
     filter,
-    extractCss = true,
-    preloadFiles = [],
-    loadMethod = 'link',
+    preloadFiles,
+    loadMethod,
   } = options;
-  let isServer = false;
-  let needSourcemap = false;
-  let config: ResolvedConfig;
+
   let extCssString = '';
 
   const styleMap = new Map<string, string>();
@@ -40,7 +44,7 @@ export function antdDarkThemePlugin(options: AntdDarkThemeOption): PluginOption 
 
   const cssOutputName = `${fileName}.${createFileHash()}.css`;
 
-  const hrefProtocals = [ 'http://' ];
+  const context = createContext({antdThemeOptions: options, antdThemeFileName: cssOutputName});
 
   const getCss = (css: string) => {
     return `[${selector || 'data-theme="dark"'}] {${css}}`;
@@ -57,60 +61,38 @@ export function antdDarkThemePlugin(options: AntdDarkThemeOption): PluginOption 
           javascriptEnabled: true,
           modifyVars: darkModifyVars,
           filename: path.resolve(id),
-          plugins: [lessPlugin(id, config)],
+          plugins: [lessPlugin(id, context.viteOptions)],
         })
-        .then(({ css }) => {
+        .then(({css}) => {
           const colors = css.match(colorRE);
           if (colors) {
             css = extractVariable(css, colors.concat(['transparent']));
-            codeCache.set(id, { code, css });
+            codeCache.set(id, {code, css});
           }
         });
     }
   }
 
-  function getProtocal(path): string | undefined {
-    let protocal:string | undefined;
-
-    hrefProtocals.forEach(hrefProtocal => {
-      if(path.startsWith(hrefProtocal)){
-        protocal = hrefProtocal;
-      }
-    })
-
-    return protocal;
-  }
-
   return [
-    injectClientPlugin('antdDarkPlugin', {
-      antdDarkCssOutputName: cssOutputName,
-      antdDarkExtractCss: extractCss,
-      antdDarkLoadLink: loadMethod === 'link',
-    }),
+    injectClientPlugin(),
     {
       name: 'vite:antd-dark-theme',
       enforce: 'pre',
       configResolved(resolvedConfig) {
-        config = resolvedConfig;
-        isServer = resolvedConfig.command === 'serve';
-        needSourcemap = !!resolvedConfig.build.sourcemap;
-        isServer && preloadLess();
+        createContext({
+          viteOptions: resolvedConfig,
+          devEnvironment: resolvedConfig.command === 'serve',
+          needSourceMap: !!resolvedConfig.build.sourcemap
+        });
+
+        (resolvedConfig.command === 'serve') && preloadLess();
       },
       transformIndexHtml(html) {
-        let href;
-        const protocal = getProtocal(config.base);
-
-        if (isServer || loadMethod !== 'link') {
+        if (context.devEnvironment || loadMethod !== 'link') {
           return html;
         }
 
-        if(protocal) {
-          href = protocal + path.posix.join(config.base.slice(protocal.length), config.build.assetsDir, cssOutputName);
-        }
-        else {
-          href = path.posix.join(config.base, config.build.assetsDir, cssOutputName)
-        }
-
+        const config = context.viteOptions;
         return {
           html,
           tags: [
@@ -120,7 +102,7 @@ export function antdDarkThemePlugin(options: AntdDarkThemeOption): PluginOption 
                 disabled: true,
                 id: linkID,
                 rel: 'alternate stylesheet',
-                href: href,
+                href: path.posix.join(config.base, config.build.assetsDir, cssOutputName),
               },
               injectTo: 'head',
             },
@@ -139,7 +121,7 @@ export function antdDarkThemePlugin(options: AntdDarkThemeOption): PluginOption 
 
         const getResult = (content: string) => {
           return {
-            map: needSourcemap ? this.getCombinedSourcemap() : null,
+            map: context.needSourceMap ? this.getCombinedSourcemap() : null,
             code: content,
           };
         };
@@ -149,11 +131,11 @@ export function antdDarkThemePlugin(options: AntdDarkThemeOption): PluginOption 
         const isUpdate = !cache || cache.code !== code;
 
         if (isUpdate) {
-          const { css } = await less.render(code, {
+          const {css} = await less.render(code, {
             javascriptEnabled: true,
             modifyVars: darkModifyVars,
             filename: path.resolve(id),
-            plugins: [lessPlugin(id, config)],
+            plugins: [lessPlugin(id, context.viteOptions)],
           });
 
           const colors = css.match(colorRE);
@@ -166,14 +148,14 @@ export function antdDarkThemePlugin(options: AntdDarkThemeOption): PluginOption 
           processCss = cache!.css;
         }
 
-        if (isServer || !extractCss) {
-          isUpdate && codeCache.set(id, { code, css: processCss });
+        if (context.devEnvironment) {
+          isUpdate && codeCache.set(id, {code, css: processCss});
           return getResult(`${getCss(processCss)}\n` + code);
         } else {
           if (!styleMap.has(id)) {
-            const { css } = await less.render(getCss(processCss), {
+            const {css} = await less.render(getCss(processCss), {
               filename: path.resolve(id),
-              plugins: [lessPlugin(id, config)],
+              plugins: [lessPlugin(id, context.viteOptions)],
             });
 
             extCssString += `${css}\n`;
@@ -185,38 +167,36 @@ export function antdDarkThemePlugin(options: AntdDarkThemeOption): PluginOption 
       },
 
       async writeBundle() {
-        if (!extractCss) {
-          return;
-        }
         const {
           root,
-          build: { outDir, assetsDir, minify },
-        } = config;
+          build: {outDir, assetsDir, minify},
+        } = context.viteOptions;
         if (minify) {
-          extCssString = await minifyCSS(extCssString, config);
+          extCssString = await minifyCSS(extCssString, context.viteOptions);
         }
         const cssOutputPath = path.resolve(root, outDir, assetsDir, cssOutputName);
         fs.writeFileSync(cssOutputPath, extCssString);
       },
 
       closeBundle() {
-        if (verbose && !isServer && extractCss) {
+        if (verbose && !context.devEnvironment) {
           const {
-            build: { outDir, assetsDir },
-          } = config;
+            build: {outDir, assetsDir},
+          } = context.viteOptions;
           console.log(
             colors.cyan('\n✨ [vite-plugin-theme:antd-dark]') +
-              ` - extract antd dark css code file is successfully:`
+            ` - extract antd dark css code file is successfully:`
           );
           try {
-            const { size } = fs.statSync(path.join(outDir, assetsDir, cssOutputName));
+            const {size} = fs.statSync(path.join(outDir, assetsDir, cssOutputName));
             console.log(
               colors.dim(outDir + '/') +
               colors.magenta(`${assetsDir}/${cssOutputName}`) +
-                `\t\t${colors.dim((size / 1024).toFixed(2) + 'kb')}` +
-                '\n'
+              `\t\t${colors.dim((size / 1024).toFixed(2) + 'kb')}` +
+              '\n'
             );
-          } catch (error) {}
+          } catch (error) {
+          }
         }
       },
     },

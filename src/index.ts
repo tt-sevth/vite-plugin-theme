@@ -1,15 +1,16 @@
-import {PluginOption, ResolvedConfig} from 'vite';
+import {PluginOption} from 'vite';
 import path from 'path';
 import fs from 'fs-extra';
 import {debug as Debug} from 'debug';
 import {createFileHash, extractVariable, formatCss, minifyCSS} from './utils';
 import colors from "picocolors";
-import {CLIENT_PUBLIC_ABSOLUTE_PATH, cssLangRE, cssVariableString, VITE_CLIENT_ENTRY} from './constants';
+import {cssLangRE, cssVariableString, VITE_CLIENT_ENTRY} from './constants';
 import {injectClientPlugin} from './injectClientPlugin';
+import {createContext} from "./context";
 
 export * from '../client/colorUtils';
 
-export { antdDarkThemePlugin } from './antdDarkThemePlugin';
+export {antdDarkThemePlugin} from './antdDarkThemePlugin';
 
 export type ResolveSelector = (selector: string) => string;
 
@@ -28,11 +29,7 @@ export interface ViteThemeOptions {
 const debug = Debug('vite-plugin-theme');
 
 export function viteThemePlugin(opt: ViteThemeOptions): PluginOption {
-  let isServer = false;
-  let config: ResolvedConfig;
-  let clientPath = '';
   const styleMap = new Map<string, string>();
-
   const extCssSet = new Set<string>();
 
   const emptyPlugin: PluginOption = {
@@ -70,19 +67,18 @@ export function viteThemePlugin(opt: ViteThemeOptions): PluginOption {
 
   const cssOutputName = `${fileName}.${createFileHash()}.css`;
 
-  let needSourcemap = false;
+  const context = createContext({colorThemeOptions: options, colorThemeFileName: cssOutputName});
+
   return [
-    injectClientPlugin('colorPlugin', {
-      colorPluginCssOutputName: cssOutputName,
-      colorPluginOptions: options,
-    }),
+    injectClientPlugin(),
     {
       ...emptyPlugin,
       configResolved(resolvedConfig) {
-        config = resolvedConfig;
-        isServer = resolvedConfig.command === 'serve';
-        clientPath = JSON.stringify(CLIENT_PUBLIC_ABSOLUTE_PATH);
-        needSourcemap = !!resolvedConfig.build.sourcemap;
+        createContext({
+          viteOptions: resolvedConfig,
+          devEnvironment: resolvedConfig.command === 'serve',
+          needSourceMap: !!resolvedConfig.build.sourcemap
+        });
         debug('plugin config:', resolvedConfig);
       },
 
@@ -92,12 +88,12 @@ export function viteThemePlugin(opt: ViteThemeOptions): PluginOption {
         }
         const getResult = (content: string) => {
           return {
-            map: needSourcemap ? this.getCombinedSourcemap() : null,
+            map: context.needSourceMap ? this.getCombinedSourcemap() : null,
             code: content,
           };
         };
 
-        const clientCode = isServer
+        const clientCode = context.devEnvironment
           ? await getClientStyleString(code)
           : code.replace('export default', '').replace('"', '');
 
@@ -114,9 +110,9 @@ export function viteThemePlugin(opt: ViteThemeOptions): PluginOption {
         }
 
         // dev-server
-        if (isServer) {
+        if (context.devEnvironment) {
           const retCode = [
-            `import { addCssToQueue } from ${clientPath}`,
+            `import { addCssToQueue } from ${context.injectClientPath}`,
             `const themeCssId = ${JSON.stringify(id)}`,
             `const themeCssStr = ${JSON.stringify(formatCss(extractCssCodeTemplate))}`,
             `addCssToQueue(themeCssId, themeCssStr)`,
@@ -137,36 +133,37 @@ export function viteThemePlugin(opt: ViteThemeOptions): PluginOption {
       async writeBundle() {
         const {
           root,
-          build: { outDir, assetsDir, minify },
-        } = config;
+          build: {outDir, assetsDir, minify},
+        } = context.viteOptions;
         let extCssString = '';
         for (const css of extCssSet) {
           extCssString += css;
         }
         if (minify) {
-          extCssString = await minifyCSS(extCssString, config);
+          extCssString = await minifyCSS(extCssString, context.viteOptions);
         }
         const cssOutputPath = path.resolve(root, outDir, assetsDir, cssOutputName);
         fs.writeFileSync(cssOutputPath, extCssString);
       },
 
       closeBundle() {
-        if (verbose && !isServer) {
+        if (verbose && !context.devEnvironment) {
           const {
-            build: { outDir, assetsDir },
-          } = config;
+            build: {outDir, assetsDir},
+          } = context.viteOptions;
           console.log(
             colors.cyan('\n✨ [vite-plugin-theme]') + ` - extract css code file is successfully:`
           );
           try {
-            const { size } = fs.statSync(path.join(outDir, assetsDir, cssOutputName));
+            const {size} = fs.statSync(path.join(outDir, assetsDir, cssOutputName));
             console.log(
               colors.dim(outDir + '/') +
               colors.magenta(`${assetsDir}/${cssOutputName}`) +
-                `\t\t${colors.dim((size / 1024).toFixed(2) + 'kb')}` +
-                '\n'
+              `\t\t${colors.dim((size / 1024).toFixed(2) + 'kb')}` +
+              '\n'
             );
-          } catch (error) {}
+          } catch (error) {
+          }
         }
       },
     },
