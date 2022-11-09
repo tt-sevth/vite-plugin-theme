@@ -78,7 +78,6 @@ export function viteThemePlugin(opt: ViteThemeOptions): PluginOption {
     }),
     {
       ...emptyPlugin,
-      enforce: 'post',
       configResolved(resolvedConfig) {
         config = resolvedConfig;
         isServer = resolvedConfig.command === 'serve';
