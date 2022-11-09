@@ -3,10 +3,15 @@
   <component name="ChangeListManager">
     <list default="true" id="87c7f4e9-1015-40a0-88e0-0e91ab39310f" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/index.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/dist/index.d.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dist/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/index.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dist/index.mjs" beforeDir="false" afterPath="$PROJECT_DIR$/dist/index.mjs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/es/client.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/es/client.d.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/es/client.js" beforeDir="false" afterPath="$PROJECT_DIR$/es/client.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/es/colorUtils.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/es/colorUtils.d.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/es/colorUtils.js" beforeDir="false" afterPath="$PROJECT_DIR$/es/colorUtils.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/es/index.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/es/index.d.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/es/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/es/index.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -61,19 +66,19 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;yarn&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;/Users/sevth/workspace/WebstormProjects/vite-plugin-theme/node_modules/typescript/lib&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "nodejs_package_manager_path": "yarn",
+    "settings.editor.selected.configurable": "preferences.lookFeel",
+    "ts.external.directory.path": "/Users/sevth/WebstormProjects/vite-plugin-theme/node_modules/typescript/lib",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RunManager" selected="npm.build">
     <configuration name="build" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
       <package-json value="$PROJECT_DIR$/package.json" />
@@ -107,8 +112,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="npm.dev" />
         <item itemvalue="npm.build" />
+        <item itemvalue="npm.dev" />
         <item itemvalue="npm.dev:client" />
       </list>
     </recent_temporary>
@@ -126,6 +131,7 @@
       <workItem from="1667789654474" duration="6468000" />
       <workItem from="1667808483456" duration="1160000" />
       <workItem from="1667809650444" duration="36676000" />
+      <workItem from="1667994204750" duration="662000" />
     </task>
     <task id="LOCAL-00001" summary="fix: vite3。">
       <created>1667958439057</created>
