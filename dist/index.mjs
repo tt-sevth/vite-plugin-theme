@@ -22325,8 +22325,10 @@ function injectClientPlugin() {
         code = code.replace(
           "__ANTD_DARK_PLUGIN_OUTPUT_FILE_NAME__",
           getOutputFile(context2.antdThemeFileName)
-        );
-        code = code.replace(
+        ).replace(
+          "__ANTD_DARK_PLUGIN_EXTRACT_CSS__",
+          JSON.stringify(context2.antdThemeOptions.extractCss)
+        ).replace(
           "__ANTD_DARK_PLUGIN_LOAD_LINK__",
           JSON.stringify(context2.antdThemeOptions?.loadMethod === "link")
         );

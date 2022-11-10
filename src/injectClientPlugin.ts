@@ -98,8 +98,9 @@ export function injectClientPlugin(): Plugin {
         code = code.replace(
           '__ANTD_DARK_PLUGIN_OUTPUT_FILE_NAME__',
           getOutputFile(context.antdThemeFileName)
-        );
-        code = code.replace(
+        ).replace('__ANTD_DARK_PLUGIN_EXTRACT_CSS__',
+          JSON.stringify(context.antdThemeOptions.extractCss)
+        ).replace(
           '__ANTD_DARK_PLUGIN_LOAD_LINK__',
           JSON.stringify(context.antdThemeOptions?.loadMethod === 'link')
         );

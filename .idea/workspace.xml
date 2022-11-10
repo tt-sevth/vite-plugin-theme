@@ -3,8 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="87c7f4e9-1015-40a0-88e0-0e91ab39310f" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/client.ts" beforeDir="false" afterPath="$PROJECT_DIR$/client/client.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/antdDarkThemePlugin.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/antdDarkThemePlugin.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/injectClientPlugin.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/injectClientPlugin.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -60,19 +59,21 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;yarn&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;/Users/sevth/workspace/WebstormProjects/vite-plugin-theme/node_modules/typescript/lib&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.standard": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.standard": "",
+    "nodejs_package_manager_path": "yarn",
+    "settings.editor.selected.configurable": "settings.javascript.linters.eslint",
+    "ts.external.directory.path": "/Users/sevth/workspace/WebstormProjects/vite-plugin-theme/node_modules/typescript/lib",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RunManager" selected="npm.build">
     <configuration name="build" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
       <package-json value="$PROJECT_DIR$/package.json" />
@@ -126,7 +127,7 @@
       <workItem from="1667808483456" duration="1160000" />
       <workItem from="1667809650444" duration="36676000" />
       <workItem from="1667994204750" duration="662000" />
-      <workItem from="1668049760235" duration="2311000" />
+      <workItem from="1668049760235" duration="3347000" />
     </task>
     <task id="LOCAL-00001" summary="fix: vite3。">
       <created>1667958439057</created>
@@ -156,7 +157,21 @@
       <option name="project" value="LOCAL" />
       <updated>1667983883595</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="feat: add extractCss support。">
+      <created>1668060157166</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1668060157166</updated>
+    </task>
+    <task id="LOCAL-00006" summary="feat: add extractCss support。">
+      <created>1668060204458</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1668060204458</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -213,6 +228,7 @@
     <MESSAGE value="fix: install fail。" />
     <MESSAGE value="fix: vite3 build change theme fail。" />
     <MESSAGE value="fix: vite3 antd dark build fail。" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix: vite3 antd dark build fail。" />
+    <MESSAGE value="feat: add extractCss support。" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: add extractCss support。" />
   </component>
 </project>
