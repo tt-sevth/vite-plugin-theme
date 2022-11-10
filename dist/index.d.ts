@@ -9,12 +9,34 @@ declare function dropPrefix(colorStr: string): string;
 declare function pad2(num: number): string;
 
 interface AntdDarkThemeOption {
+    /**
+     * darkModifyVars
+     */
     darkModifyVars?: any;
+    /**
+     * when extractCss is true, the file name of the extracted css file
+     */
     fileName?: string;
     verbose?: boolean;
     selector?: string;
+    /**
+     * Files that result in true will be processed.
+     * @param id (file path)
+     */
     filter?: (id: string) => boolean;
+    /**
+     * when run in dev mode, the plugin will preloadFile
+     */
     preloadFiles?: string[];
+    /**
+     * extractCss to a single file
+     * @default true
+     */
+    extractCss?: boolean;
+    /**
+     * load darkCss type
+     * @default 'link'
+     */
     loadMethod?: 'link' | 'ajax';
 }
 declare function antdDarkThemePlugin(opt: AntdDarkThemeOption): PluginOption;

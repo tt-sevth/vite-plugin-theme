@@ -10,12 +10,34 @@ import colors from "picocolors";
 import {createContext} from "./context";
 
 export interface AntdDarkThemeOption {
+  /**
+   * darkModifyVars
+   */
   darkModifyVars?: any;
+  /**
+   * when extractCss is true, the file name of the extracted css file
+   */
   fileName?: string;
   verbose?: boolean;
   selector?: string;
+  /**
+   * Files that result in true will be processed.
+   * @param id (file path)
+   */
   filter?: (id: string) => boolean;
+  /**
+   * when run in dev mode, the plugin will preloadFile
+   */
   preloadFiles?: string[];
+  /**
+   * extractCss to a single file
+   * @default true
+   */
+  extractCss?: boolean;
+  /**
+   * load darkCss type
+   * @default 'link'
+   */
   loadMethod?: 'link' | 'ajax';
 }
 
@@ -25,6 +47,7 @@ export function antdDarkThemePlugin(opt: AntdDarkThemeOption): PluginOption {
     fileName: 'app-antd-dark-theme-style',
     preloadFiles: [],
     loadMethod: 'link',
+    extractCss: true,
   }, opt);
 
   const {
@@ -35,6 +58,7 @@ export function antdDarkThemePlugin(opt: AntdDarkThemeOption): PluginOption {
     filter,
     preloadFiles,
     loadMethod,
+    extractCss
   } = options;
 
   let extCssString = '';
@@ -88,7 +112,7 @@ export function antdDarkThemePlugin(opt: AntdDarkThemeOption): PluginOption {
         (resolvedConfig.command === 'serve') && preloadLess();
       },
       transformIndexHtml(html) {
-        if (context.devEnvironment || loadMethod !== 'link') {
+        if (context.devEnvironment || loadMethod !== 'link' || !extractCss ) {
           return html;
         }
 

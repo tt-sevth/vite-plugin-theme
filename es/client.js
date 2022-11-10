@@ -64,7 +64,8 @@ export async function replaceStyleVariables({ colorVariables, customCssHandler, 
 }
 export async function loadDarkThemeCss() {
     const isLoadLink = __ANTD_DARK_PLUGIN_LOAD_LINK__;
-    if (darkCssIsReady) {
+    const extractCss = __ANTD_DARK_PLUGIN_EXTRACT_CSS__;
+    if (darkCssIsReady || !extractCss) {
         return;
     }
     if (isLoadLink) {

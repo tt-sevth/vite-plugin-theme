@@ -32,6 +32,7 @@ declare const __COLOR_PLUGIN_OPTIONS__: Options;
 declare const __COLOR_PLUGIN_OUTPUT_FILE_NAME__: string;
 declare const __ANTD_DARK_PLUGIN_OUTPUT_FILE_NAME__: string;
 declare const __ANTD_DARK_PLUGIN_LOAD_LINK__: boolean;
+declare const __ANTD_DARK_PLUGIN_EXTRACT_CSS__: boolean;
 declare const __PROD__: boolean;
 
 const colorPluginOutputFileName = __COLOR_PLUGIN_OUTPUT_FILE_NAME__;
@@ -110,7 +111,8 @@ export async function replaceStyleVariables({
 
 export async function loadDarkThemeCss() {
   const isLoadLink = __ANTD_DARK_PLUGIN_LOAD_LINK__;
-  if (darkCssIsReady) {
+  const extractCss = __ANTD_DARK_PLUGIN_EXTRACT_CSS__;
+  if (darkCssIsReady || !extractCss) {
     return;
   }
   if (isLoadLink) {
